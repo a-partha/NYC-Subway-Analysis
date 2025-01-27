@@ -8,4 +8,4 @@
 
 - Since the data is stable and free from extreme outliers, statistical thresholding was applied to develop a baseline anomaly detection model. 
 
-- **5.56% and 11.12% of days with complaints were flagged as anomalies in average daily ridership** at the two stations, respectively. The model allows for plugging in new data to identify similar anomalies.
+- **8% and 11.12% of days with complaints were flagged as anomalies in average daily ridership** at the two stations, respectively. The model allows for plugging in new data to identify similar anomalies.
