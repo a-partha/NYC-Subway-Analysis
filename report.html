@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTA Transit Crime & Ridership Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .slide.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .chart-container {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .highlight-box {
+            background: linear-gradient(to right, #1e3a8a, #3b82f6);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="bg-blue-900 text-white rounded-xl p-6 mb-8 shadow-lg">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-3xl md:text-4xl font-bold">Trend Analysis of Transit Crime Complaints and Subway Ridership</h1>
+                    <!-- <h2 class="text-xl md:text-2xl mt-2">Impact on Daily Subway Ridership</h2> -->
+                </div>
+                <div class="flex items-center space-x-2 bg-white/20 p-3 rounded-lg">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/MTA_NYC_logo.svg" alt="MTA Logo" class="h-12">
+
+                    <span class="text-lg font-semibold">NYC Transit</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Toolbar -->
+        <div class="flex flex-wrap gap-2 mb-8 bg-gray-50 p-4 rounded-lg">
+            <button class="nav-btn active px-4 py-2 rounded-md font-medium text-blue-700 bg-blue-100" data-slide="0">
+                Summary
+            </button>
+            <button class="nav-btn px-4 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-100" data-slide="1">
+                Findings
+            </button>
+            <button class="nav-btn px-4 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-100" data-slide="2">
+                Data
+            </button>
+            <button class="nav-btn px-4 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-100" data-slide="3">
+                Procedure
+            </button>
+            <!-- <button class="nav-btn px-4 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-100" data-slide="4">
+                Recommendations
+            </button> -->
+            <button class="nav-btn px-4 py-2 rounded-md font-medium text-gray-700 hover:bg-gray-100" data-slide="5">
+                Conclusion
+            </button>
+        </div>
+
+        <!-- Slides Container -->
+        <div class="relative">
+            <!-- Slide 1: Introduction -->
+            <!-- <div class="slide active bg-white rounded-xl p-8 shadow-lg mb-8">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <div class="md:w-1/2">
+                        <h3 class="text-2xl font-bold text-blue-900 mb-4">Executive Summary</h3>
+                        <p class="text-gray-700 mb-6 leading-relaxed">
+                            This analysis examines the relationship between transit crime complaints and daily subway ridership across New York City using 12 million records of the city's open data. 
+                            My findings reveal critical actionable insights to the security team at MTA Headquarters to help provide New Yorkers a safe subway experience.
+                        </p>
+                        
+                        <div class="highlight-box p-6 mb-6">
+                            <h4 class="text-xl font-semibold mb-3">Key Questions Addressed:</h4>
+                            <ul class="list-disc pl-5 space-y-2">
+                        
+                                <li>Do complaints affect ridership?</li>
+                                <li>What temporal patterns emerge in these relationships?</li>
+                                <li>Are there any crime hotspots ?</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <h4 class="text-lg font-semibold text-blue-800 mb-3">Methodology Overview</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-database text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium">Data Sources</span>
+                                </div>
+                                <p class="text-sm text-gray-600">MTA Ridership Data, NYPD Transit Crime Complaints Data, MTA Subway Station Data</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-calendar-alt text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium">Time Period Analyzed</span>
+                                </div>
+                                <p class="text-sm text-gray-600">January 2024 - June 2024</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-chart-line text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium">Analysis Techniques</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Geospatial Mapping, Time Series Analysis, Correlation Studies, Statistical Thresholding</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-map-marked-alt text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium">Area of Consideration</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Brooklyn, Manhattan, Queens, The Bronx</p>
+                            </div>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                        <i class="fas fa-exclamation-triangle text-blue-600"></i>
+                                    </div>
+                                    <span class="font-medium">Type of Crimes</span>
+                                </div>
+                                <p class="text-sm text-gray-600">Major Felonies (Grand Larceny, Felony Assault, Robbery, Burglary, Rape)</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Slide 1: Introduction -->
+<div class="slide active bg-white rounded-xl p-8 shadow-lg mb-8">
+    <!-- Executive Summary + Key Questions -->
+    <div class="flex flex-col md:flex-row gap-8 mb-8">
+      <!-- Executive Summary -->
+      <div class="md:w-2/3">
+        <h3 class="text-2xl font-bold text-blue-900 mb-4">Executive Summary</h3>
+        <p class="text-gray-700 leading-relaxed">
+          This analysis examines the relationship between transit crime complaints and daily subway ridership across New York City using 12 million records of the city's open data. 
+          My findings reveal critical actionable insights to the security team at MTA Headquarters to help provide New Yorkers a safe subway experience.
+        </p>
+      </div>
+  
+      <!-- Key Questions -->
+      <div class="md:w-1/3 mt-5">
+        <div class="highlight-box p-6 h-full flex flex-col justify-center max-w-xs">
+          <h4 class="text-l font-semibold mb-3">Key Questions Addressed:</h4>
+          <ul class="list-disc pl-5 space-y-2 text-white/90 text-sm">
+            <li>Do complaints affect ridership?</li>
+            <li>What temporal patterns emerge?</li>
+            <li>Are there any crime hotspots?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Methodology Overview -->
+    <div>
+      <h4 class="text-lg font-semibold text-blue-800 mb-4">Methodology Overview</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex items-center mb-2">
+            <div class="bg-blue-100 p-2 rounded-full mr-3">
+              <i class="fas fa-database text-blue-600"></i>
+            </div>
+            <span class="font-medium">Data Sources</span>
+          </div>
+          <p class="text-sm text-gray-600">MTA Ridership Data, NYPD Transit Crime Complaints Data, MTA Subway Station Data</p>
+        </div>
+  
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex items-center mb-2">
+            <div class="bg-blue-100 p-2 rounded-full mr-3">
+              <i class="fas fa-calendar-alt text-blue-600"></i>
+            </div>
+            <span class="font-medium">Time Period Analyzed</span>
+          </div>
+          <p class="text-sm text-gray-600">January 2024 - June 2024</p>
+        </div>
+  
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex items-center mb-2">
+            <div class="bg-blue-100 p-2 rounded-full mr-3">
+              <i class="fas fa-chart-line text-blue-600"></i>
+            </div>
+            <span class="font-medium">Analysis Techniques</span>
+          </div>
+          <p class="text-sm text-gray-600">Geospatial Mapping, Time Series Analysis, Correlation Studies, Statistical Thresholding</p>
+        </div>
+  
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex items-center mb-2">
+            <div class="bg-blue-100 p-2 rounded-full mr-3">
+              <i class="fas fa-map-marked-alt text-blue-600"></i>
+            </div>
+            <span class="font-medium">Area of Consideration</span>
+          </div>
+          <p class="text-sm text-gray-600">Brooklyn, Manhattan, Queens, The Bronx</p>
+        </div>
+  
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <div class="flex items-center mb-2">
+            <div class="bg-blue-100 p-2 rounded-full mr-3">
+              <i class="fas fa-exclamation-triangle text-blue-600"></i>
+            </div>
+            <span class="font-medium">Type of Crimes</span>
+          </div>
+          <p class="text-sm text-gray-600">Major Felonies (Grand Larceny, Felony Assault, Robbery, Burglary, Rape)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+            
+            
+            
+            <!-- Slide 2: Key Findings -->
+            <!-- <div class="slide bg-white rounded-xl p-8 shadow-lg mb-8">
+                <h3 class="text-2xl font-bold text-blue-900 mb-6">Key Takeaways</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="highlight-box p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-white/20 p-2 rounded-full mr-3">
+                                <i class="fas fa-exclamation-triangle text-white"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold">Crime-Ridership Correlation</h4>
+                        </div>
+                        <p class="text-white/90">
+                            Complaints generally rise with ridership, except at <b>14 St-Union Sq</b> and <b>74 Broadway – Jackson Heights</b>, where complaints are high despite low ridership.
+                            <br> t-tests suggest the complaint anomaly is likely due to chance, not differences in average ridership. 
+                            <br>
+                            A weak cross-correlation index of 0.18 indicates that complaints had no significant effect on ridership at these stations
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-map-marker-alt text-blue-600"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold text-gray-800">Geographic Hotspots</h4>
+                        </div>
+                        <div class="flex justify-center">
+                            <img src="Top5_Trends.png" alt="Complaint Days vs Ridership Chart" class="rounded-lg shadow-md max-w-full h-auto">
+                        </div>
+                          
+                    </div>
+                </div>
+                
+                
+                
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0 text-yellow-500">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-lg font-medium text-yellow-800">Notable Insight</h4>
+                            <p class="text-yellow-700">
+                                Anomaly detection found unusual ridership patterns on 8% of complaint days at 14 St – Union Sq and 11.12% at 74 Broadway – Jackson Heights, suggesting ridership behaved unexpectedly on those days.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+<!-- Slide 2: Key Takeaways -->
+<div class="slide bg-white rounded-xl p-8 shadow-lg mb-8">
+    <h3 class="text-2xl font-bold text-blue-900 mb-6">Key Takeaways</h3>
+  
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <!-- LEFT: Correlation up top, Insight down below, auto-stretched -->
+      <div class="flex flex-col justify-between">
+        <div class="highlight-box p-6">
+          <!-- Correlation content -->
+          <div class="flex items-center mb-4">
+            <div class="bg-white/20 p-2 rounded-full mr-3">
+              <i class="fas fa-exclamation-triangle text-white"></i>
+            </div>
+            <h4 class="text-xl font-semibold">Crime-Ridership Correlation</h4>
+          </div>
+          <div class="text-white/90 text-sm space-y-4">
+            <p>Complaints generally rise with ridership, except at <b>14 St–Union Sq</b> and <b>74 Broadway – Jackson Heights</b>, where complaints are high despite low ridership.</p>
+            <p>T-tests suggest the complaint anomaly is likely due to chance, not differences in average ridership.</p>
+            <p>A weak cross-correlation index of 0.18 indicates that complaints had no significant effect on ridership at these stations.</p>
+          </div>
+        </div>
+  
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+          <!-- Notable Insight -->
+          <div class="flex">
+            <div class="flex-shrink-0 text-yellow-500">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="ml-3">
+              <h4 class="text-lg font-medium text-yellow-800">Notable Insight</h4>
+              <p class="text-yellow-700 text-sm">
+                Anomaly detection found unusual ridership patterns on 8% of complaint days at 14 St–Union Sq and 11.12% at 74 Broadway – Jackson Heights, suggesting ridership behaved unexpectedly on those days.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- RIGHT: Hotspot (spans full height) -->
+      <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 flex flex-col justify-start">
+        <div class="flex items-center mb-4">
+          <div class="bg-blue-100 p-2 rounded-full mr-3">
+            <i class="fas fa-map-marker-alt text-blue-600"></i>
+          </div>
+          <h4 class="text-xl font-semibold text-gray-800">Geographic Hotspots</h4>
+        </div>
+        <div class="flex justify-center">
+          <img src="Top5_Trends.png" alt="Complaint Days vs Ridership Chart" class="rounded-lg shadow-md max-w-full h-auto">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+
+            <!-- Slide 3: Data Visualization -->
+<div class="slide bg-white rounded-xl p-8 shadow-lg mb-8">
+    <h3 class="text-2xl font-bold text-blue-900 mb-6">Exploratory Data Analysis</h3>
+  
+    <!-- <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-3">Complaint Statistics</h4>
+          <div class="chart-container h-64 p-4 flex items-center justify-start">
+            <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                <li>Total Number of Days in the Time Period: 182</li>
+                <li>Number of Days with Complaints: 182</li>
+                <li>Total Number of Complaints: 1,007</li>
+                <li>Average Number of Daily Complaints: 5.53</li>
+                <li>Maximum Number of Complaints in a Day: 15 (occurred on May 4)</li>
+                <li>Most Common Type of Complaint: Grand Larceny with 541 complaints (24% of total) and a daily average of 2.97 complaints.</li>
+            </ul>
+              
+              
+          
+              
+          </div>
+          <p class="text-sm text-gray-600 mt-2">
+            * <i>For major felonies.</i>
+          </p>
+        </div>
+        <div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-3">Ridership Statistics</h4>
+          <div class="chart-container h-64 p-4 flex items-center justify-start">
+            <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                <li>Total Number of Complaint Stations: 256</li>
+                <li>Average Daily Ridership: 10,784.23</li>
+                <li>Standard Deviation: 3,412.59</li>
+                <li>Median Ridership: 5,598.0</li>
+                <li>Minimum Ridership: 10.0</li>
+                <li>25% of Stations had ridership ≤ 9,452.82</li>
+                <li>75% of Stations had ridership ≤ 12,352.86</li>
+                <li>Maximum Ridership: 158,893.0</li>
+              </ul>
+        </div>
+          <p class="text-sm text-gray-600 mt-2">
+            * <i>For major felonies per complaint station</i>
+          </p>
+        </div>
+    </div> -->
+  
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-3">Complaint Statistics</h4>
+          <div class="chart-container h-64 p-4 flex items-center justify-start">
+            <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+              <li>Total Number of Days in the Time Period: <span class="font-semibold text-blue-900">182</span></li>
+              <li>Number of Days with Complaints: <span class="font-semibold text-blue-900">182</span></li>
+              <li>Total Number of Complaints: <span class="font-semibold text-blue-900">1,007</span></li>
+              <li>Average Number of Daily Complaints: <span class="font-semibold text-blue-900">5.53</span></li>
+              <li>Maximum Number of Complaints in a Day: <span class="font-semibold text-blue-900">15</span> (occurred on <span class="font-semibold text-blue-900">May 4</span>)</li>
+              <li>
+                Most Common Type of Complaint: <span class="font-semibold text-blue-900">Grand Larceny</span> with 
+                <span class="font-semibold text-blue-900">541</span> complaints (<span class="font-semibold text-blue-900">24%</span> of total) and a daily average of 
+                <span class="font-semibold text-blue-900">2.97</span> complaints.
+              </li>
+            </ul>
+          </div>
+          <p class="text-sm text-gray-600 mt-2">
+            * <i>For major felonies.</i>
+          </p>
+        </div>
+      
+        <div>
+          <h4 class="text-lg font-semibold text-gray-800 mb-3">Ridership Statistics</h4>
+          <div class="chart-container h-64 p-4 flex items-center justify-start">
+            <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+              <li>Total Number of Complaint Stations: <span class="font-semibold text-blue-900">256</span></li>
+              <li>Average Daily Ridership: <span class="font-semibold text-blue-900">10,784.23</span></li>
+              <li>Standard Deviation: <span class="font-semibold text-blue-900">3,412.59</span></li>
+              <li>Median Ridership: <span class="font-semibold text-blue-900">5,598.0</span></li>
+              <li>Minimum Ridership: <span class="font-semibold text-blue-900">10.0</span></li>
+              <li>25% of Stations had ridership ≤ <span class="font-semibold text-blue-900">9,452.82</span></li>
+              <li>75% of Stations had ridership ≤ <span class="font-semibold text-blue-900">12,352.86</span></li>
+              <li>Maximum Ridership: <span class="font-semibold text-blue-900">158,893.0</span></li>
+            </ul>
+          </div>
+          <p class="text-sm text-gray-600 mt-2">
+            * <i>For major felonies per complaint station</i>
+          </p>
+        </div>
+      </div>
+      
+    
+    <div class="bg-blue-50 rounded-lg p-6">
+      <h4 class="text-lg font-semibold text-blue-800 mb-3">Temporal Patterns</h4>
+      <div class="flex flex-col gap-6">
+
+        <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div class="mb-4">
+              <i class="fas fa-gavel text-blue-500 text-2xl mb-2"></i>
+              <h5 class="font-medium">Complaint Trends</h5>
+            </div>
+            <p class="text-sm text-gray-600">
+              Complaints count is sporadic throughout the year. While total daily complaints is low on most holidays, both weekends and holidays show elevated daily averages.
+            </p>
+          </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+          <div class="mb-4">
+            <i class="fas fa-ticket text-yellow-500 text-2xl mb-2"></i>
+            <h5 class="font-medium">Ridership Trends</h5>
+          </div>
+          <p class="text-sm text-gray-600">
+            Daily ridership peaks during weekdays, with a dip on weekends. Ridership significantly drops on holidays.
+          </p>
+        </div>
+  
+      
+  
+        <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+          <div class="mb-4">
+            <i class="fas fa-map text-purple-500 text-2xl mb-2"></i>
+            <h5 class="font-medium">Station-Level Trends</h5>
+          </div>
+          <p class="text-sm text-gray-600">
+            Ridership across stations with complaints closely mirrors the trend across all stations. 85.9% of the total daily ridership comes from complaint stations.
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+
+
+  </div>
+  
+
+            <!-- Slide 4: Comparative Analysis -->
+            <div class="slide bg-white rounded-xl p-8 shadow-lg mb-8">
+                <h3 class="text-2xl font-bold text-blue-900 mb-6">Methodology</h3>
+                
+                <!-- <div class="bg-gray-50 rounded-lg p-6 text-sm text-gray-800 space-y-4">
+                    <div>
+                      <h4 class="text-base font-semibold text-gray-900 mb-1">Objective:</h4>
+                      <p>Investigate anomaly stations with high complaint days frequency but lower average ridership.</p>
+                    </div>
+                  
+                    <div>
+                      <h4 class="text-base font-semibold text-gray-900 mb-1">Stations Analyzed:</h4>
+                      <ul class="list-disc pl-5 space-y-1">
+                        <li><strong>Anomaly:</strong> 14 St–Union Sq, 74 Broadway–Jackson Heights</li>
+                        <li><strong>Non-Anomaly:</strong> Times Sq–42 St, Grand Central–42 St, 34 St–Penn Station</li>
+                      </ul>
+                    </div>
+                  
+                    <div>
+                      <h4 class="text-base font-semibold text-gray-900 mb-1">Approach:</h4>
+                      <ul class="list-disc pl-5 space-y-2">
+                        <li>
+                          <strong>Standardization (Z-Scores):</strong>
+                          <p class="pl-4">Measured how far each station's metrics deviate from their mean.</p>
+                        </li>
+                        <li>
+                          <strong>Hypothesis Testing:</strong>
+                          <ul class="list-disc pl-8 space-y-1">
+                            <li><strong>F-Tests:</strong> Found no difference in data variability between anomaly and non-anomaly groups.</li>
+                            <li><strong>T-Tests:</strong>
+                              <ul class="list-disc pl-5 space-y-1">
+                                <li>Number of Complaint Days: No meaningful difference (p &gt; 0.05)</li>
+                                <li>Avg Daily Ridership: Significant difference (p &lt; 0.05)</li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </li>
+                        <li>
+                          <strong>Correlation Checks:</strong>
+                          <ul class="list-disc pl-8 space-y-1">
+                            <li>Autocorrelation: No strong patterns based on past days.</li>
+                            <li>Cross-Correlation: Weak link between complaint days and ridership (max correlation = 0.18 at 2-day lag)</li>
+                          </ul>
+                        </li>
+                        <li>
+                          <strong>Anomaly Detection:</strong>
+                          <p class="pl-4">Since our data is stable and shows no extreme outliers, we can use statistical thresholding to detect anomalies using the formula:</p>
+                          <p class="pl-4 font-mono bg-white border border-gray-200 px-2 py-1 inline-block rounded mt-1">Threshold = Mean ± 2 × Standard Deviation</p>
+                        </li>
+                      </ul>
+                    </div>
+                </div> -->
+                  
+                <div class="bg-gray-50 rounded-lg p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <!-- Objective -->
+                      <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Objective</h4>
+                        <p class="text-sm text-gray-700">
+                          To investigate anomaly stations with high complaint days frequency but lower average ridership.
+                        </p>
+                      </div>
+                  
+                      <!-- Stations Analyzed -->
+                      <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">Stations Analyzed</h4>
+                        <p class="text-sm text-gray-700 mb-1"><strong>Anomaly:</strong> 14 St–Union Sq, 74 Broadway–Jackson Heights</p>
+                        <p class="text-sm text-gray-700"><strong>Non-Anomaly:</strong> Times Sq–42 St, Grand Central–42 St, 34 St–Penn Station</p>
+                      </div>
+                    </div>
+                  
+                    <!-- Approach -->
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                      <h4 class="text-lg font-semibold text-gray-800 mb-3">Approach</h4>
+                      <ul class="list-none pl-5 space-y-2 text-sm text-gray-700">
+                        <li><i class="fas fa-subway text-blue-500 mr-2"></i><strong>Standardization (Z-Scores):</strong> Measured how far each station's metrics deviate from their mean.</li>
+                        <li><i class="fas fa-subway text-blue-500 mr-2"></i>
+                          <strong>Hypothesis Testing:</strong>
+                          <ul class="list-none pl-5 space-y-1">
+                            <li><i class="fas fa-pencil text-black-500 mr-2"></i><strong>F-Tests:</strong> Found no difference in data variability between anomaly and non-anomaly groups.</li>
+                            <li><i class="fas fa-pencil text-black-500 mr-2"></i><strong>T-Tests:</strong> To estimate true difference between means of the two groups.
+                              <ul class="list-none pl-5 space-y-1">
+                                <li><i class="fas fa-times text-red-500 mr-2"></i><u>Number of Complaint Days</u>: No significant mean difference <i>(p &gt; 0.05, t = -0.26)</i></li>
+                                <li><i class="fas fa-check text-green-500 mr-2"></i><u>Avg Daily Ridership</u>: Significant mean difference <i>(p &lt; 0.05, t = -3.35)</i></li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </li>
+                        <li><i class="fas fa-subway text-blue-500 mr-2"></i>
+                          <strong>Correlation Checks:</strong>
+                          <ul class="list-none pl-5 space-y-1">
+                            <li><i class="fas fa-times text-red-500 mr-2"></i><u>Autocorrelation</u>: No strong patterns based on past days.</li>
+                            <li><i class="fas fa-check text-green-500 mr-2"></i><u>Cross-Correlation</u>: Weak link between complaint days and ridership (max correlation = 0.18 at 2-day lag)</li>
+                          </ul>
+                        </li>
+                        <li><i class="fas fa-subway text-blue-500 mr-2"></i><strong>Anomaly Detection:</strong> Used statistical thresholding (Threshold = Mean ± 2 × Standard Deviation) based on stable, non-extreme data.</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-indigo-50 p-6 rounded-lg">
+                        <h4 class="text-lg font-semibold text-indigo-800 mb-3">T-Test Results</h4>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-sm font-medium">p-value</span>
+                            <span class="text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">Two-Tail</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Number of complaint days</span>
+                                    <span>0.82</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 82%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Average daily ridership</span>
+                                    <span>0.04</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 37%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3">Anomaly Detection Model Results</h4>
+                        <p class="text-gray-700 text-sm mb-4">
+                            Number of complaint days (non-holiday) flagged as anomalies for average daily ridership:
+                        </p>
+                        <div class="flex items-center justify-around">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-gray-500">2 out of 25</div>
+                                <div class="text-xs text-gray-500">14 St-Union Sq</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-gray-500">2 out of 18</div>
+                                <div class="text-xs text-gray-500">74 Broadway - Jackson Heights</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Recommendations -->
+            <!-- <div class="slide bg-white rounded-xl p-8 shadow-lg mb-8">
+                <h3 class="text-2xl font-bold text-blue-900 mb-6">Strategic Recommendations</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                <i class="fas fa-shield-alt text-blue-600"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold">Targeted Safety Investments</h4>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                            <li>Prioritize A/C/E lines and Times Square complex</li>
+                            <li>Expand visibility patrols during high-impact hours</li>
+                            <li>Implement rapid response teams for media-sensitive incidents</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-green-100 p-3 rounded-full mr-4">
+                                <i class="fas fa-bullhorn text-green-600"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold">Communication Strategy</h4>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                            <li>Develop rapid response protocol for high-profile incidents</li>
+                            <li>Highlight safety improvements in rider communications</li>
+                            <li>Create transparency dashboard for crime statistics</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-purple-100 p-3 rounded-full mr-4">
+                                <i class="fas fa-chart-pie text-purple-600"></i>
+                            </div>
+                            <h4 class="text-lg font-semibold">Monitoring Framework</h4>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                            <li>Establish ridership impact early warning system</li>
+                            <li>Create station-level crime-ridership sensitivity index</li>
+                            <li>Quarterly review of initiative effectiveness</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Projected Outcomes</h4>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="pb-3 text-left font-medium text-gray-700">Initiative</th>
+                                    <th class="pb-3 text-left font-medium text-gray-700">Cost</th>
+                                    <th class="pb-3 text-left font-medium text-gray-700">Timeframe</th>
+                                    <th class="pb-3 text-left font-medium text-gray-700">Expected Ridership Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="py-3">Targeted Patrol Expansion</td>
+                                    <td class="py-3">$$</td>
+                                    <td class="py-3">6 months</td>
+                                    <td class="py-3 text-green-600 font-medium">+2.5-4%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3">Safety Communication Campaign</td>
+                                    <td class="py-3">$</td>
+                                    <td class="py-3">3 months</td>
+                                    <td class="py-3 text-green-600 font-medium">+1-2%</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-3">Incident Response Protocol</td>
+                                    <td class="py-3">$$$</td>
+                                    <td class="py-3">12 months</td>
+                                    <td class="py-3 text-green-600 font-medium">+3-5%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Slide 6: Conclusion -->
+            <div class="slide bg-white rounded-xl p-8 shadow-lg mb-8">
+                <h3 class="text-2xl font-bold text-blue-900 mb-6">Conclusions</h3>
+
+                <div class="text-justify mb-8">
+                    <p class="text-gray-600 max-w-full mx-auto text-sm md:text-base text-left ml-2">                    Although not every complaint leads to an arrest, complaints still provide insight into what is troubling subway riders in New York City and where. This will help senior leadership take suitable actions to improve safety in the system.
+                  </p>
+                </div>
+                <h4 class="font-bold text-blue-900 mb-2">Actionable Insights</h4>
+
+                <div class="space-y-6">
+                  <div class="flex items-center bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <div class="bg-blue-100 p-2 rounded-full mr-4 mt-1">
+                      <i class="fas fa-check text-blue-600"></i>
+                    </div>
+                    <p class="text-gray-700 text-sm">
+                      Higher daily ridership usually comes with more complaint days, except for 14 St–Union Sq and 74 Broadway–Jackson Heights Roosevelt Av stations, where ridership is relatively low.
+                    </p>
+                  </div>
+              
+                  <div class="flex items-center bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <div class="bg-blue-100 p-2 rounded-full mr-4 mt-1">
+                      <i class="fas fa-check text-blue-600"></i>
+                    </div>
+                    <p class="text-gray-700 text-sm">
+                      Statistical testing revealed that average daily ridership at these stations does not depend on number of complaint days.
+                    </p>
+                  </div>
+              
+                  <div class="flex items-center bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <div class="bg-blue-100 p-2 rounded-full mr-4 mt-1">
+                      <i class="fas fa-check text-blue-600"></i>
+                    </div>
+                    <p class="text-gray-700 text-sm">
+                      Hence, deviations in ridership may be due to other factors such as socio-economic environment and design vulnerabilities (e.g., poor lighting, entrance/exit congestion, lack of patrol presence).
+                    </p>
+                  </div>
+              
+                  <div class="flex items-center bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <div class="bg-blue-100 p-2 rounded-full mr-4 mt-1">
+                      <i class="fas fa-check text-blue-600"></i>
+                    </div>
+                    <p class="text-gray-700 text-sm">
+                      Anomaly detection model allows for plugging in new data to identify similar deviations from the norm.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+                    
+                    <!-- <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-4">Implementation Roadmap</h4>
+                        <div class="relative">
+                            <div class="absolute left-4 h-full w-0.5 bg-gray-200"></div>
+                            <div class="space-y-6">
+                                <div class="relative pl-10">
+                                    <div class="absolute left-0 top-0 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
+                                        1
+                                    </div>
+                                    <h5 class="font-medium text-gray-800">Phase 1: Quick Wins (0-3 months)</h5>
+                                    <p class="text-sm text-gray-600">Communication strategy, hotspot patrols</p>
+                                </div>
+                                <div class="relative pl-10">
+                                    <div class="absolute left-0 top-0 w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center text-white">
+                                        2
+                                    </div>
+                                    <h5 class="font-medium text-gray-800">Phase 2: System Enhancements (3-6 months)</h5>
+                                    <p class="text-sm text-gray-600">Response protocols, monitoring framework</p>
+                                </div>
+                                <div class="relative pl-10">
+                                    <div class="absolute left-0 top-0 w-8 h-8 rounded-full bg-blue-800 flex items-center justify-center text-white">
+                                        3
+                                    </div>
+                                    <h5 class="font-medium text-gray-800">Phase 3: Long-Term Initiatives (6-12 months)</h5>
+                                    <p class="text-sm text-gray-600">Infrastructure investments, policy changes</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+                
+                <div class="bg-blue-100 rounded-lg p-6">
+                    <div class="flex flex-col md:flex-row items-center justify-center">
+                        <!-- <div class="mb-4 md:mb-0">
+                            <h4 class="text-lg font-semibold text-blue-800 mb-2">Requested Executive Actions</h4>
+                            <p class="text-sm text-gray-700">
+                                Approval to form cross-functional working group and allocate initial funding for Phase 1 initiatives.
+                            </p>
+                        </div> -->
+                    <a href="https://github.com/a-partha/NYC-Subway-Analysis/blob/main/Complaint%20Analysis.pdf" target="_blank" rel="noopener noreferrer" download>
+                        <button class="bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-medium transition-all">
+                            View Full Report <i class="fas fa-link ml-2"></i>
+                        </button>
+                    </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-600 text-sm mb-6">
+            <p>MTA Subway Crime & Ridership Analysis | Open Source Case Study</p>
+            <p class="mt-1">Prepared by: Aniruddha Parthasarathy</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          const slides = document.querySelectorAll('.slide');
+          const totalSlides = slides.length;
+          const navButtons = document.querySelectorAll('.nav-btn');
+          let currentSlide = 0;
+        
+          function showSlide(index) {
+            // clamp index
+            index = Math.max(0, Math.min(index, totalSlides - 1));
+            slides.forEach((slide, i) => {
+              slide.classList.toggle('active', i === index);
+            });
+            navButtons.forEach((btn, i) => {
+              btn.classList.toggle('active', i === index);
+              btn.classList.toggle('text-blue-700', i === index);
+              btn.classList.toggle('bg-blue-100', i === index);
+              btn.classList.toggle('text-gray-700', i !== index);
+              btn.classList.toggle('hover:bg-gray-100', i !== index);
+            });
+            currentSlide = index;
+            localStorage.setItem('currentSlide', index);
+          }
+        
+          navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+              showSlide(parseInt(btn.dataset.slide, 10));
+            });
+          });
+        
+          document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft' && currentSlide > 0) {
+              showSlide(currentSlide - 1);
+            } else if (e.key === 'ArrowRight' && currentSlide < totalSlides - 1) {
+              showSlide(currentSlide + 1);
+            }
+          });
+        
+          // ←– Here’s the change: load saved slide instead of always 0
+          const saved = localStorage.getItem('currentSlide');
+          const startIndex = saved !== null ? parseInt(saved, 10) : 0;
+          showSlide(startIndex);
+        });
+        </script>
+        
+
+   
+</body>
+</html>
