@@ -1,6 +1,6 @@
 ## Analysis of Subway Crime Complaints with Daily Ridership using NYC Transit Open Data 
 
-**Report** - https://docs.google.com/document/d/1VSnyPdF5qKyDxX0vtyT00O3D3BAZjVbDCybYbiC8NqQ/edit?tab=t.0
+**Dashboard** - https://a-partha.github.io/NYC-Subway-Analysis/report.html
 
 - From January 1st to June 30th of 2024, an **average of 2.97 complaints per day were recorded for Grand Larceny amongst other major felonies**.
 
